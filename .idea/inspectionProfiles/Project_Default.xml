@@ -18,6 +18,7 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="ib.opt.message.*" />
+          <option value="matplotlib.cm.*" />
         </list>
       </option>
     </inspection_tool>

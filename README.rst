@@ -1,5 +1,5 @@
 Fplot: Function plots with less code
-======================================
+====================================
 A thin wrapper for matplotlib
 
 Fplot's goal is to 
@@ -11,6 +11,7 @@ Included functions
  - plot
  - parametric: One input, two or three outputs. If three, use a 3d graph.
  - contour: Two inputs, one output.
+ - surface: Two inputs, one output.
 
 
 

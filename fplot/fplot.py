@@ -1,8 +1,9 @@
 from functools import wraps
 from typing import Callable, Tuple
 
-from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm, pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # Axes3d's required for 3d plots,
+# even though it's not specifically required.
 import numpy as np
 
 #from numba import jit
@@ -110,9 +111,14 @@ def _set_misc(fig, ax, title, grid, equal_aspect):
 
     if title:
         fig.suptitle(title, fontsize=14, fontweight='bold')
+        top_margin = .95
+    else:
+        top_margin = 1
 
     if equal_aspect:
         ax.set_aspect('equal')
+
+    plt.tight_layout(rect=(0, 0, 1, top_margin))
 
     return fig, ax
 
@@ -162,7 +168,6 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
                              "3 outputs.")
 
     _set_misc(fig, ax, title, grid, equal_aspect)
-
     _show_or_return(ax, show)
 
 
@@ -182,21 +187,44 @@ def _parametric3d(x: np.ndarray, y: np.ndarray, z: np.ndarray, equal_aspect=Fals
     return fig, ax
 
 
-def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
-            title: str=None, grid=True, show=True, equal_aspect=False) -> None:
-    """Two inputs, one output."""
-    resolution = 1e3
-
+def _two_in_one_out_helper(f: Callable[[float, float], float], x_min: float,
+                           x_max: float, resolution: int) -> \
+        Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Set up a mes grid for contour and evaluate the function for surface plots."""
     x = np.linspace(x_min, x_max, resolution)
     y = np.linspace(x_min, x_max, resolution)
 
     x, y = np.meshgrid(x, y)
     z = f(x, y)
 
-    fig, ax = plt.subplots()
+    return x, y, z
 
+
+def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
+            title: str=None, grid=True, show=True, equal_aspect=False) -> None:
+    """Two inputs, one output."""
+    resolution = 1e3
+
+    x, y, z = _two_in_one_out_helper(f, x_min, x_max, resolution)
+
+    fig, ax = plt.subplots()
     ax.contour(x, y, z)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
+    _show_or_return(ax, show)
 
+
+def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
+            title: str=None, show=True,
+            equal_aspect=False) -> None:
+    """Two inputs, one output."""
+    resolution = 1e2
+
+    x, y, z = _two_in_one_out_helper(f, x_min, x_max, resolution)
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot_surface(x, y, z, cmap=cm.coolwarm)
+
+    _set_misc(fig, ax, title, False, equal_aspect)
     _show_or_return(ax, show)
