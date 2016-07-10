@@ -105,7 +105,7 @@ def _set_grid(ax):
     return ax
 
 
-def _set_misc(fig, ax, title, grid, equal_aspect):
+def _set_misc(fig, ax, title: str, grid: bool, equal_aspect: bool) -> None:
     if grid:
         _set_grid(ax)
 
@@ -120,8 +120,6 @@ def _set_misc(fig, ax, title, grid, equal_aspect):
 
     plt.tight_layout(rect=(0, 0, 1, top_margin))
 
-    return fig, ax
-
 
 def _show_or_return(ax, show):
     if show:
@@ -131,7 +129,8 @@ def _show_or_return(ax, show):
 
 
 def plot(f: Callable[[float], float], x_min: float, x_max: float,
-         title: str=None, grid=True, show=True, equal_aspect=False) -> None:
+         title: str=None, grid=True, show=True, equal_aspect=False,
+         color='b') -> None:
     """One input, one output."""
     resolution = 1e5
 
@@ -140,18 +139,17 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float,
 
     fig, ax = plt.subplots()
 
-    ax.plot(x, y)
+    ax.plot(x, y, color=color)
     if equal_aspect:
         ax.set_aspect('equal')
 
-        _set_misc(fig, ax, title, grid, equal_aspect)
-
+    _set_misc(fig, ax, title, grid, equal_aspect)
     _show_or_return(ax, show)
 
 
 def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
                t_max: float, title: str=None, grid=True, show=True,
-               equal_aspect=False)-> None:
+               color='b', equal_aspect=False)-> None:
     """One input, two outputs (2d plot), three outputs (3d plot)."""
     resolution = 1e5
 
@@ -159,9 +157,9 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
     outputs = f(t)
 
     if len(outputs) == 2:
-        fig, ax = _parametric2d(*outputs)
+        fig, ax = _parametric2d(*outputs, color)
     elif len(outputs) == 3:
-        fig, ax = _parametric3d(*outputs)
+        fig, ax = _parametric3d(*outputs, color)
         grid = False  # The grid and axes doesn't work the same way on mpl's 3d plots.
     else:
         raise AttributeError("The parametric function must have exactly 2 or "
@@ -171,18 +169,20 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
     _show_or_return(ax, show)
 
 
-def _parametric2d(x: np.ndarray, y: np.ndarray):
+def _parametric2d(x: np.ndarray, y: np.ndarray, color: str):
+    """One input, two outputs. Intended to be called by parametric, rather than directly."""
     fig, ax = plt.subplots()
-    ax.plot(x, y)
+    ax.plot(x, y, color=color)
 
     return fig, ax
 
 
-def _parametric3d(x: np.ndarray, y: np.ndarray, z: np.ndarray, equal_aspect=False):
-    """One input, three outputs. Intended to be called by parametric, rather than directly."""
+def _parametric3d(x: np.ndarray, y: np.ndarray, z: np.ndarray, color: str):
+    """One input, three outputs. Intended to be called by parametric, rather
+    than directly."""
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.plot(x, y, z)
+    ax.plot(x, y, z, color=color)
 
     return fig, ax
 
@@ -228,3 +228,29 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
 
     _set_misc(fig, ax, title, False, equal_aspect)
     _show_or_return(ax, show)
+
+
+def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
+           x_max: float, grid=True, title: str=None, show=True,
+           equal_aspect=False, stream=False, resolution: int=15) -> None:
+    """Two inputs, two outputs. 2D vector plot. steam=True sets a streamplot with curved arrows
+     instead of a traditionl vector plot."""
+    x = np.linspace(x_min, x_max, resolution)
+    y = np.linspace(x_min, x_max, resolution)
+
+    x, y = np.meshgrid(x, y)
+    i, j = f(x, y)
+    vec_len = (i**2 + j**2)**.5  # For color coding
+
+    fig, ax = plt.subplots()
+
+    # plot_args = (x, y, i, j)
+
+    if stream:
+        ax.streamplot(x, y, i, j, color=vec_len, cmap=cm.inferno)
+    else:
+        ax.quiver(x, y, i, j, vec_len, cmap=cm.inferno)
+
+    _set_misc(fig, ax, title, grid, equal_aspect)
+    _show_or_return(ax, show)
+

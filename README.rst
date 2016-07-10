@@ -8,10 +8,11 @@ Fplot's goal is to
 Included functions
 ------------------
 
- - plot
+ - plot: One input, one output.
  - parametric: One input, two or three outputs. If three, use a 3d graph.
  - contour: Two inputs, one output.
  - surface: Two inputs, one output.
+ - vector: Two inputs, two outputs.
 
 
 
@@ -34,5 +35,4 @@ Basic documentation
     fplot.plot(f, -10, 10)
     # Insert image
 
-    saturn.datetime(2016, 1, 1, 16)
-    # datetime.datetime(2016, 1, 1, 16, 0, tzinfo=<UTC>)
+
