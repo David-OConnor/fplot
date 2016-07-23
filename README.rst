@@ -57,6 +57,7 @@ Show a contour plot (2 inputs, 1 output)
 
 
 Show a surface plot (2 inputs, 1 output)
+
 .. code-block:: python
 
     g = lambda x, y: x**2 + y**2 + 10
@@ -69,6 +70,7 @@ Show a 2d parametric plot (1 input, 2 outputs)
 
     h = lambda t: (np.sin(t), np.cos(t))
     fplot.parametric(h, 0, τ, equal_aspect=True, color='m')
+
 
 Show a 3d parametric plot (1 input, 3 outputs)
 
