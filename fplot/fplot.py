@@ -5,7 +5,9 @@ from matplotlib import cm, pyplot as plt
 # Axes3d's required for 3d plots, even though it's not specifically required.
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-#import sympy
+
+
+DEFAULT_STYLE = 'seaborn-deep'
 
 
 # Todo broken atm.
@@ -26,7 +28,6 @@ def _set_grid_axes(ax):
 
     ax.axhline(y=0, linewidth=1.5, color='darkslategrey')
     ax.axvline(x=0, linewidth=1.5, color='darkslategrey')
-    return ax
 
 
 def _set_misc(fig, ax, title: str, grid: bool, equal_aspect: bool) -> None:
@@ -44,6 +45,8 @@ def _set_misc(fig, ax, title: str, grid: bool, equal_aspect: bool) -> None:
 
     plt.tight_layout(rect=(0, 0, 1, top_margin))
 
+    fig.patch.set_facecolor('ghostwhite')
+
 
 def _show_or_return(ax, show):
     if show:
@@ -54,13 +57,15 @@ def _show_or_return(ax, show):
 
 def plot(f: Callable[[float], float], x_min: float, x_max: float,
          title: str=None, grid=True, show=True, equal_aspect=False,
-         color='b') -> None:
+         color=None, resolution=1e5, style=DEFAULT_STYLE) -> None:
     """One input, one output."""
-    resolution = 1e5
 
     x = np.linspace(x_min, x_max, resolution)
     y = f(x)
 
+    # Style seems to require a reset, or some properties from previous styles stick.
+    plt.style.use('classic')
+    plt.style.use(style)  # style must be set before setting fix, ax.
     fig, ax = plt.subplots()
 
     ax.plot(x, y, color=color)
@@ -73,13 +78,15 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float,
 
 def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
                t_max: float, title: str=None, grid=True, show=True,
-               color='b', equal_aspect=False)-> None:
+               color=None, equal_aspect=False, resolution=1e5, style=DEFAULT_STYLE)-> None:
     """One input, two outputs (2d plot), three outputs (3d plot)."""
-    resolution = 1e5
 
     t = np.linspace(t_min, t_max, resolution)
     outputs = f(t)
 
+    # Style seems to require a reset, or some properties from previous styles stick.
+    plt.style.use('classic')
+    plt.style.use(style)  # style must be set before setting fix, ax.
     if len(outputs) == 2:
         fig, ax = _parametric2d(*outputs, color)
     elif len(outputs) == 3:
@@ -125,13 +132,18 @@ def _two_in_helper(f: Callable[[float, float], float], x_min: float,
 
 def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
             y_min: float=None, y_max: float=None, resolution=1e3,
-            title: str=None, grid=True, show=True, equal_aspect=False) -> None:
+            title: str=None, grid=True, show=True, equal_aspect=False,
+            style=DEFAULT_STYLE) -> None:
     """Two inputs, one output."""
     if not y_min:
         y_min = x_min
     if not y_max:
         y_max = x_max
     x, y, z = _two_in_helper(f, x_min, x_max, y_min, y_max, resolution)
+
+    # Style seems to require a reset, or some properties from previous styles stick.
+    plt.style.use('classic')
+    plt.style.use(style)  # style must be set before setting fix, ax.
 
     fig, ax = plt.subplots()
     ax.contour(x, y, z)
@@ -142,7 +154,7 @@ def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
 
 def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
             y_min: float=None, y_max: float=None, title: str=None, show=True,
-            equal_aspect=False, resolution=1e2) -> None:
+            equal_aspect=False, resolution=1e2, style=DEFAULT_STYLE) -> None:
     """Two inputs, one output."""
     if not y_min:
         y_min = x_min
@@ -150,6 +162,10 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
         y_max = x_max
 
     x, y, z = _two_in_helper(f, x_min, x_max, y_min, y_max, resolution)
+
+    # Style seems to require a reset, or some properties from previous styles stick.
+    plt.style.use('classic')
+    plt.style.use(style)  # style must be set before setting fix, ax.
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -162,7 +178,7 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
 def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
            x_max: float, y_min: float=None, y_max: float=None, grid=True,
            title: str=None, show=True, equal_aspect=False, stream=False,
-           resolution: int=15) -> None:
+           resolution: int=15, style=DEFAULT_STYLE) -> None:
     """Two inputs, two outputs. 2D vector plot. steam=True sets a streamplot with curved arrows
      instead of a traditionl vector plot."""
     if not y_min:
@@ -173,6 +189,9 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
     x, y, (i, j) = _two_in_helper(f, x_min, x_max, y_min, y_max, resolution)
     vec_len = (i**2 + j**2)**.5  # For color coding
 
+    # Style seems to require a reset, or some properties from previous styles stick.
+    plt.style.use('classic')
+    plt.style.use(style)  # style must be set before setting fix, ax.
     fig, ax = plt.subplots()
 
     if stream:
