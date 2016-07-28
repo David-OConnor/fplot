@@ -8,7 +8,7 @@ and requires setting up data arrays manually. Making pretty function plots requi
 multiple lines of code. Fplot aims to fix this; it's especially suited for visualizing
 functions when learning math.
 
-This is an early, unpolished release - I'm welcome to suggestions.
+Python 3 only. This is an early, unpolished release - I'm welcome to suggestions.
 
 
 Included functions
@@ -53,7 +53,7 @@ Show a contour plot (2 inputs, 1 output)
 .. code-block:: python
 
     g = lambda x, y: x**2 + y**2 + 10
-    fplot.contour(g, -10, 10, equal_aspect=True, resolution=400)
+    fplot.contour(g, -10, 10, equal_aspect=True)
 
 
 Show a surface plot (2 inputs, 1 output)
@@ -77,7 +77,7 @@ Show a 3d parametric plot (1 input, 3 outputs)
 .. code-block:: python
 
     i = lambda t: (np.sin(t), np.cos(t), t**2)
-    fplot.parametric(i, 0, 20, color='r')
+    fplot.parametric(i, 0, 20, color='red')
 
 
 Show a vector plot (2 inputs, 2 outputs)
