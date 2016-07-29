@@ -80,13 +80,20 @@ Show a 3d parametric plot (1 input, 3 outputs)
     fplot.parametric(i, 0, 20, color='red')
 
 
-Show a vector plot (2 inputs, 2 outputs)
+Show a 2d vector plot (2 inputs, 2 outputs)
 
 .. code-block:: python
 
     f = lambda x, y: (x**2 + y, y**2 * cos(x))
     fplot.vector(f, -10, 10, stream=False)
 
+
+Show a 3d vector plot (3 inputs, 3 outputs).
+
+.. code-block:: python
+
+    f = lambda x, y, z: (x**2, y**2, z)
+    fplot.vector3d(f, -10, 10)
 
 Optional arguments:
  - show: Defaults to True. Instantly display the plot. If False, return the axis object.
@@ -98,4 +105,5 @@ Optional arguments:
  - grid: defaults to True
  - equal_aspect: defaults to False
  - title: Shown at the top of the plot
- - stream: (vector plot only; show a stream plot if True)
+ - stream: vector plot only; show a stream plot if True
+ - contours: surface plot only; show contour plots along each axis if True

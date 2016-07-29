@@ -1,1 +1,1 @@
-from .fplot import plot, parametric, contour, surface, vector
+from .fplot import plot, parametric, contour, surface, vector, vector3d

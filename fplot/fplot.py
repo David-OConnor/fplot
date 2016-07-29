@@ -8,6 +8,7 @@ import numpy as np
 
 
 DEFAULT_STYLE = 'seaborn-deep'
+DEFAULT_COLORMAP = cm.viridis
 
 
 # Todo broken atm.
@@ -120,9 +121,9 @@ def _parametric3d(x: np.ndarray, y: np.ndarray, z: np.ndarray, color: str):
     return fig, ax
 
 
-def _two_in_helper(f: Callable[[float, float], float], x_min: float,
-                   x_max: float, y_min: float, y_max: float,
-                   resolution: int) -> \
+def _two_in_one_out_helper(f: Callable[[float, float], float], x_min: float,
+                           x_max: float, y_min: float, y_max: float,
+                           resolution: int) -> \
         Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Set up a mes grid for contour and evaluate the function for surface plots."""
     x = np.linspace(x_min, x_max, resolution)
@@ -142,7 +143,7 @@ def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
     if not y_max:
         y_max = x_max
 
-    x, y, z = _two_in_helper(f, x_min, x_max, y_min, y_max, resolution)
+    x, y, z = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
 
     # Style seems to require a reset, or some properties from previous styles stick.
     plt.style.use('classic')
@@ -157,14 +158,14 @@ def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
 
 def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
             y_min: float=None, y_max: float=None, title: str=None, show=True,
-            equal_aspect=False, resolution=1e2, style: str=DEFAULT_STYLE) -> None:
+            equal_aspect=False, contours=False, resolution=1e2, style: str=DEFAULT_STYLE) -> None:
     """Two inputs, one output."""
     if not y_min:
         y_min = x_min
     if not y_max:
         y_max = x_max
 
-    x, y, z = _two_in_helper(f, x_min, x_max, y_min, y_max, resolution)
+    x, y, z = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
 
     # Style seems to require a reset, or some properties from previous styles stick.
     plt.style.use('classic')
@@ -172,7 +173,20 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.plot_surface(x, y, z, cmap=cm.coolwarm)
+
+    alpha = .3 if contours else 1.0
+    ax.plot_surface(x, y, z, cmap=DEFAULT_COLORMAP, alpha=alpha)
+
+    if contours:
+        offset_dist = .3  # How far from the graph to draw the contours, as a
+        # of min and max values.
+        x_offset = x_min - offset_dist * (x_max - x_min)
+        y_offset = y_max + offset_dist * (y_max - y_min)
+        z_offset = 0 - offset_dist * (z.max() - z.min())
+
+        ax.contour(x, y, z, zdir='x', offset=x_offset, cmap=DEFAULT_COLORMAP)
+        ax.contour(x, y, z, zdir='y', offset=y_offset, cmap=DEFAULT_COLORMAP)
+        ax.contour(x, y, z, zdir='z', offset=z_offset, cmap=DEFAULT_COLORMAP)
 
     _set_misc(fig, ax, title, False, equal_aspect)
     _show_or_return(ax, show)
@@ -182,14 +196,14 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
            x_max: float, y_min: float=None, y_max: float=None, grid=True,
            title: str=None, show=True, equal_aspect=False, stream=False,
            resolution: int=15, style: str=DEFAULT_STYLE) -> None:
-    """Two inputs, two outputs. 2D vector plot. steam=True sets a streamplot with curved arrows
-     instead of a traditionl vector plot."""
+    """Two inputs, two outputs. 2D vector plot. stream=True sets a streamplot
+    with curved arrows instead of a traditionl vector plot."""
     if not y_min:
         y_min = x_min
     if not y_max:
         y_max = x_max
 
-    x, y, (i, j) = _two_in_helper(f, x_min, x_max, y_min, y_max, resolution)
+    x, y, (i, j) = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
     vec_len = (i**2 + j**2)**.5  # For color coding
 
     # Style seems to require a reset, or some properties from previous styles stick.
@@ -203,6 +217,43 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
         ax.quiver(x, y, i, j, vec_len, cmap=cm.inferno)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
+    _show_or_return(ax, show)
+
+
+def vector3d(f: Callable[[float, float, float], Tuple[float, float, float]],
+             x_min: float, x_max: float, y_min: float=None, y_max: float=None,
+             z_min: float=None, z_max: float=None, title: str=None, show=True, equal_aspect=False, resolution: int=5,
+             style: str=DEFAULT_STYLE) -> None:
+    """Three inputs, three outputs. 3D vector plot. stream=True sets a streamplot
+    with curved arrows instead of a traditionl vector plot."""
+    if not y_min:
+        y_min = x_min
+    if not y_max:
+        y_max = x_max
+    if not z_min:
+        z_min = x_min
+    if not z_max:
+        z_max = x_max
+
+    x = np.linspace(x_min, x_max, resolution)
+    y = np.linspace(y_min, y_max, resolution)
+    z = np.linspace(z_min, z_max, resolution)
+    x, y, z = np.meshgrid(x, y, z)
+
+    i, j, k = f(x, y, z)
+    vec_len = (i**2 + j**2 + k**2) ** .5  # For color coding
+
+    # Style seems to require a reset, or some properties from previous styles stick.
+    plt.style.use('classic')
+    plt.style.use(style)  # style must be set before setting fix, ax.
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    # todo: Unsure how to support colors.
+    ax.quiver(x, y, z, i, j, k, cmap=cm.inferno)
+
+    _set_misc(fig, ax, title, False, equal_aspect)
     _show_or_return(ax, show)
 
 
