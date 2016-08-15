@@ -102,7 +102,7 @@ Show a 2d polar plot (1 input, 1 output)
 .. code-block:: python
 
     f = lambda theta: np.sin(3*theta)
-    fplot.polar(f, 0, tau)
+    fplot.polar(f, 0, tau, color='purple')
 
 
 Optional arguments:

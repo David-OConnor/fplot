@@ -79,7 +79,7 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float,
         ax.set_aspect('equal')
 
     _set_misc(fig, ax, title, grid, equal_aspect)
-    _show_or_return(ax, show)
+    return _show_or_return(ax, show)
 
 
 def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
@@ -103,7 +103,7 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
                              "3 outputs.")
 
     _set_misc(fig, ax, title, grid, equal_aspect)
-    _show_or_return(ax, show)
+    return _show_or_return(ax, show)
 
 
 def parametric_surface(f: Callable[[float, float], Tuple[float, float, float]], t_min: float,
@@ -180,7 +180,7 @@ def parametric_surface(f: Callable[[float, float], Tuple[float, float, float]], 
     # ax.set_zlabel('z-axis')
 
     _set_misc(fig, ax, title, grid, equal_aspect)
-    _show_or_return(ax, show)
+    return _show_or_return(ax, show)
 
 
 def _parametric2d(x: np.ndarray, y: np.ndarray, color: str):
@@ -233,7 +233,7 @@ def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
     ax.contour(x_mesh, y, z)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
-    _show_or_return(ax, show)
+    return _show_or_return(ax, show)
 
 
 def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
@@ -269,25 +269,45 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
         ax.contour(x_mesh, y_mesh, z_mesh, zdir='z', offset=z_offset, cmap=DEFAULT_COLORMAP)
 
     _set_misc(fig, ax, title, False, equal_aspect)
-    _show_or_return(ax, show)
+    return _show_or_return(ax, show)
 
 
 def polar(f: Callable[[float], float], theta_min: float=0, theta_max: float=τ,
-          title: str=None, color: str=None, grid: bool=True, equal_aspect: bool=True,
-          resolution: int=1e5, show: bool=True) -> None:
-    """Make a 2d polar plot. Function input is theta, in radians; output is radius.
+          title: str=None, color: str=None, resolution: int=1e5, show: bool=True) -> None:
+    """Make a polar plot. Function input is theta, in radians; output is radius.
     0 radians corresponds to a point on the x axis, with positive y, ie right side.
     Goes counter-clockwise from there."""
+    # todo more customization for xticks (ie theta ticks) ie degrees, pi, 4/8/16 divisions etc
     θ = np.linspace(theta_min, theta_max, resolution)
     r = f(θ)
 
-    x, y = r * np.cos(θ), r * np.sin(θ)
+    fig = plt.figure()
+    ax = fig.gca(projection='polar')
+    ax.plot(θ, r, color=color)
 
-    fig, ax = _parametric2d(x, y, color)
-    _set_misc(fig, ax, title, grid, equal_aspect)
-    _show_or_return(ax, show)
+    ax.set_xticks(np.linspace(0, 15*τ/16, 16))
 
-    return x, y
+    ax.set_xticklabels(['0', r'$\frac{\tau}{16}$', r'$\frac{\tau}{8}$', r'$\frac{3\tau}{16}$',
+          r'$\frac{\tau}{4}$', r'$\frac{5\tau}{16}$', r'$\frac{3\tau}{8}$', r'$\frac{7\tau}{16}$',
+          r'$\frac{\tau}{2}$', r'$\frac{9\tau}{16}$', r'$\frac{5\tau}{8}$', r'$\frac{11\tau}{16}$',
+          r'$\frac{3\tau}{4}$', r'$\frac{13\tau}{16}$', r'$\frac{7\tau}{8}$', r'$\frac{15\tau}{16}$'],
+          fontsize=20)
+
+    # Default figure size is too small.
+    fig.set_size_inches(8, 8, forward=True)
+    # xL = ['0', r'$\frac{\tau}{8}$', r'$\frac{\tau}{4}$',
+    #       r'$\frac{3\tau}{8}$',
+    #       r'$\frac{\tau}{2}$', r'$\frac{5\tau}{8}$', r'$\frac{3\tau}{4}$',
+    #       r'$\frac{7\tau}{8}$']
+
+    # xL = ['0', r'$\frac{\pi}{4}$', r'$\frac{\pi}{2}$',
+    #       r'$\frac{3\pi}{4}$',
+    #       r'$\pi$', r'$\frac{5\pi}{4}$', r'$\frac{3\pi}{2}$',
+    #       r'$\frac{7\pi}{4}$']
+    # plt.xticks(xT, xL)
+
+    _set_misc(fig, ax, title, False, None)
+    return _show_or_return(ax, show)
 
 
 def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
@@ -315,7 +335,7 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
         ax.quiver(x, y, i, j, vec_len, cmap=cm.inferno)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
-    _show_or_return(ax, show)
+    return _show_or_return(ax, show)
 
 
 def vector3d(f: Callable[[float, float, float], Tuple[float, float, float]],
@@ -352,9 +372,5 @@ def vector3d(f: Callable[[float, float, float], Tuple[float, float, float]],
     ax.quiver(x, y, z, i, j, k, cmap=cm.inferno)
 
     _set_misc(fig, ax, title, False, equal_aspect)
-    _show_or_return(ax, show)
-
-
-def auto(f, x_min, x_max) -> None:
-    pass
+    return _show_or_return(ax, show)
 
