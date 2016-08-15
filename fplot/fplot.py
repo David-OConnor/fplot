@@ -10,6 +10,9 @@ import numpy as np
 DEFAULT_STYLE = 'seaborn-deep'
 DEFAULT_COLORMAP = cm.viridis
 
+# todolook into strike and rstrike for 3d plots.
+
+τ = 2 * np.pi
 
 # Todo broken atm.
 def show2(f):
@@ -103,8 +106,85 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
     _show_or_return(ax, show)
 
 
+def parametric_surface(f: Callable[[float, float], Tuple[float, float, float]], t_min: float,
+               t_max: float, s_min: float=None, s_max: float=None, title: str=None,
+               grid=True, show=True, equal_aspect=False, alpha: float=1.0,
+               resolution=1e2, style: str=DEFAULT_STYLE)-> None:
+    if not s_min:
+        s_min = t_min
+    if not s_max:
+        s_max = t_max
+
+    tau = 2*np.pi
+    x_min, x_max = -tau, tau
+    y_min, y_max = -tau, tau
+    z_min, z_max = -10, 10
+
+    x = np.linspace(x_min, x_max, resolution)
+    y = np.linspace(y_min, y_max, resolution)
+    # z = np.linspace(z_min, z_max, resolution)
+    x_mesh, y_mesh = np.meshgrid(x, y)
+    r = np.sqrt(x_mesh, y_mesh)
+
+    t = np.linspace(t_min, t_max, resolution)
+    s = np.linspace(s_min, s_max, resolution)
+
+    x, y, z = f(t, s)
+
+
+    # ###
+    # du = np.sqrt(np.diff(x, axis=0) ** 2 + np.diff(y, axis=0) ** 2 + np.diff(z,
+    #                                                                          axis=0) ** 2)
+    # dv = np.sqrt(np.diff(x, axis=1) ** 2 + np.diff(y, axis=1) ** 2 + np.diff(z,
+    #                                                                          axis=1) ** 2)
+    # u = np.zeros_like(x)
+    # v = np.zeros_like(x)
+    # u[1:, :] = np.cumsum(du, axis=0)
+    # v[:, 1:] = np.cumsum(dv, axis=1)
+    #
+    # u /= u.max(axis=0)[None,
+    #      :]  # hmm..., or maybe skip this scaling step -- may distort the result
+    # v /= v.max(axis=1)[:, None]
+    #
+    # # construct interpolant (unstructured grid)
+    # from scipy import interpolate
+    # ip_surf = interpolate.CloughTocher2DInterpolator(
+    #     (u.ravel(), v.ravel()),
+    #     np.c_[x.ravel(), y.ravel(), z.ravel()])
+
+    # the BivariateSpline classes might also work here, but the above is more robust
+
+    # plot projections
+    #
+    # u = np.random.rand(2000)
+    # v = np.random.rand(2000)
+    #
+    # plt.subplot(131)
+    # plt.plot(ip_surf(u, v)[:, 0], ip_surf(u, v)[:, 1], '.')
+    # plt.subplot(132)
+    # plt.plot(ip_surf(u, v)[:, 1], ip_surf(u, v)[:, 2], '.')
+    # plt.subplot(133)
+    # plt.plot(ip_surf(u, v)[:, 2], ip_surf(u, v)[:, 0], '.')
+    #
+    # plt.show()
+    # return
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.plot(x, y, z)
+
+    ax.plot_surface(x, y, z, cmap=DEFAULT_COLORMAP, alpha=alpha)
+
+    # ax.set_xlabel('x-axis')
+    # ax.set_ylabel('y-axis')
+    # ax.set_zlabel('z-axis')
+
+    _set_misc(fig, ax, title, grid, equal_aspect)
+    _show_or_return(ax, show)
+
+
 def _parametric2d(x: np.ndarray, y: np.ndarray, color: str):
-    """One input, two outputs. Intended to be called by parametric, rather than directly."""
+    """Two outputs. Intended to be called by parametric, rather than directly."""
     fig, ax = plt.subplots()
     ax.plot(x, y, color=color)
 
@@ -116,7 +196,7 @@ def _parametric3d(x: np.ndarray, y: np.ndarray, z: np.ndarray, color: str):
     than directly."""
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.plot(x, y, z, color=color)
+    ax.plot(x, y, z)
 
     return fig, ax
 
@@ -125,12 +205,12 @@ def _two_in_one_out_helper(f: Callable[[float, float], float], x_min: float,
                            x_max: float, y_min: float, y_max: float,
                            resolution: int) -> \
         Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Set up a mes grid for contour and evaluate the function for surface plots."""
+    """Set up a mesh grid for contour and evaluate the function for surface plots."""
     x = np.linspace(x_min, x_max, resolution)
     y = np.linspace(y_min, y_max, resolution)
-    x, y = np.meshgrid(x, y)
+    x_mesh, y_mesh = np.meshgrid(x, y)
 
-    return x, y, f(x, y)
+    return x_mesh, y_mesh, f(x_mesh, y_mesh)
 
 
 def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
@@ -143,14 +223,14 @@ def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
     if not y_max:
         y_max = x_max
 
-    x, y, z = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
+    x_mesh, y, z = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
 
     # Style seems to require a reset, or some properties from previous styles stick.
     plt.style.use('classic')
     plt.style.use(style)  # style must be set before setting fig, ax.
 
     fig, ax = plt.subplots()
-    ax.contour(x, y, z)
+    ax.contour(x_mesh, y, z)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
     _show_or_return(ax, show)
@@ -165,7 +245,7 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
     if not y_max:
         y_max = x_max
 
-    x, y, z = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
+    x_mesh, y_mesh, z_mesh = _two_in_one_out_helper(f, x_min, x_max, y_min, y_max, resolution)
 
     # Style seems to require a reset, or some properties from previous styles stick.
     plt.style.use('classic')
@@ -175,21 +255,39 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
     ax = fig.gca(projection='3d')
 
     alpha = .3 if contours else 1.0
-    ax.plot_surface(x, y, z, cmap=DEFAULT_COLORMAP, alpha=alpha)
+    ax.plot_surface(x_mesh, y_mesh, z_mesh, cmap=DEFAULT_COLORMAP, alpha=alpha)
 
     if contours:
-        offset_dist = .3  # How far from the graph to draw the contours, as a
+        offset_dist = .2  # How far from the graph to draw the contours, as a
         # of min and max values.
         x_offset = x_min - offset_dist * (x_max - x_min)
         y_offset = y_max + offset_dist * (y_max - y_min)
-        z_offset = 0 - offset_dist * (z.max() - z.min())
+        z_offset = z_mesh.min() - offset_dist * (z_mesh.max() - z_mesh.min())
 
-        ax.contour(x, y, z, zdir='x', offset=x_offset, cmap=DEFAULT_COLORMAP)
-        ax.contour(x, y, z, zdir='y', offset=y_offset, cmap=DEFAULT_COLORMAP)
-        ax.contour(x, y, z, zdir='z', offset=z_offset, cmap=DEFAULT_COLORMAP)
+        ax.contour(x_mesh, y_mesh, z_mesh, zdir='x', offset=x_offset, cmap=DEFAULT_COLORMAP)
+        ax.contour(x_mesh, y_mesh, z_mesh, zdir='y', offset=y_offset, cmap=DEFAULT_COLORMAP)
+        ax.contour(x_mesh, y_mesh, z_mesh, zdir='z', offset=z_offset, cmap=DEFAULT_COLORMAP)
 
     _set_misc(fig, ax, title, False, equal_aspect)
     _show_or_return(ax, show)
+
+
+def polar(f: Callable[[float], float], theta_min: float=0, theta_max: float=τ,
+          title: str=None, color: str=None, grid: bool=True, equal_aspect: bool=True,
+          resolution: int=1e5, show: bool=True) -> None:
+    """Make a 2d polar plot. Function input is theta, in radians; output is radius.
+    0 radians corresponds to a point on the x axis, with positive y, ie right side.
+    Goes counter-clockwise from there."""
+    θ = np.linspace(theta_min, theta_max, resolution)
+    r = f(θ)
+
+    x, y = r * np.cos(θ), r * np.sin(θ)
+
+    fig, ax = _parametric2d(x, y, color)
+    _set_misc(fig, ax, title, grid, equal_aspect)
+    _show_or_return(ax, show)
+
+    return x, y
 
 
 def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,

@@ -19,6 +19,7 @@ Included functions
  - contour: Two inputs, one output.
  - surface: Two inputs, one output.
  - vector: Two inputs, two outputs.
+ - polar: One input (angle), two outputs (radius)
 
 
 Installation
@@ -88,19 +89,29 @@ Show a 2d vector plot (2 inputs, 2 outputs)
     fplot.vector(f, -10, 10, stream=False)
 
 
-Show a 3d vector plot (3 inputs, 3 outputs).
+Show a 3d vector plot (3 inputs, 3 outputs)
 
 .. code-block:: python
 
     f = lambda x, y, z: (x**2, y**2, z)
     fplot.vector3d(f, -10, 10)
 
+
+Show a 2d polar plot (1 input, 1 output)
+
+.. code-block:: python
+
+    f = lambda theta: np.sin(3*theta)
+    fplot.polar(f, 0, tau)
+
+
 Optional arguments:
  - show: Defaults to True. Instantly display the plot. If False, return the axis object.
  - resolution: Controls how many points to draw, based on function input. Higher resolution
    allows more zooming, but may lower performance.
  - color: (ie line color)
- - y_min: and y_max (only for 2d input)
+ - y_min and y_max: (only for 2d input)
+ - theta_min and theta_max (only for polar plots)
  - style: (ie from plt.use.style())
  - grid: defaults to True
  - equal_aspect: defaults to False
