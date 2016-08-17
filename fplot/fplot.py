@@ -75,6 +75,31 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float,
     fig, ax = plt.subplots()
 
     ax.plot(x, y, color=color)
+
+
+
+    # If a vertical asympytote exists, set y display range to a reasonable value.
+    max_, min_, median, std = np.max(y), np.min(y), np.median(y), np.std(y)
+
+    lower_lim, upper_lim = min_, max_
+
+    m = 4  # Number of standard deviations required to trigger an adjustment.
+    dev = np.abs(y - np.median(y))
+    dev_low, dev_high = median - y, y - median
+    mdev = np.median(dev)
+
+    flag = False
+    if any(dev_high > np.std(dev_high) * m):
+        flag = True
+        upper_lim = median + 1*std
+    if any(dev_low < -np.std(dev_low) * m):
+        flag = True
+        lower_lim = median - 1*std
+
+    if flag:
+        ax.set_ylim([lower_lim, upper_lim])
+    #todo fix the above
+
     if equal_aspect:
         ax.set_aspect('equal')
 
