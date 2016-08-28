@@ -8,7 +8,7 @@ and requires setting up data arrays manually. Making pretty function plots requi
 multiple lines of code. Fplot aims to fix this; it's especially suited for visualizing
 functions when learning math.
 
-Python 3 only. This is an early, unpolished release - I'm welcome to suggestions.
+Python 3 only.
 
 
 Included functions
@@ -19,6 +19,7 @@ Included functions
  - contour: Two inputs, one output.
  - surface: Two inputs, one output.
  - vector: Two inputs, two outputs.
+ - vector3d: Three inputs, three outputs.
  - polar: One input (angle), two outputs (radius)
 
 
@@ -40,6 +41,9 @@ Basic documentation
 The only required arguments for fplot funcs are the function to plot, and the
 min and max ranges. Example optional keyword arguments are shown. Example output
 is shown in the link above.
+
+For most plotting functions, you can plot multiple functions at once by passing
+a list or tuple as the first argument.
 
 Show a graph (1 input, 1 output)
 
@@ -118,3 +122,4 @@ Optional arguments:
  - title: Shown at the top of the plot
  - stream: vector plot only; show a stream plot if True
  - contours: surface plot only; show contour plots along each axis if True
+ - num_contours: contour plot only; set number of contour lines to draw. Defaults to 10.
