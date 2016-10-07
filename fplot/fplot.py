@@ -303,15 +303,13 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
     if not hasattr(f, '__iter__'):
         f = [f]
 
-    for colormap_i, func in enumerate(f):
+    for func, colormap in zip(f, itertools.cycle(COLORMAP_PRIORITY)):
         x_mesh, y_mesh, z_mesh = _two_in_one_out_helper(func, x_min, x_max,
                                                         y_min, y_max,
                                                         resolution)
-        colormap = COLORMAP_PRIORITY[colormap_i]
         ax.plot_surface(x_mesh, y_mesh, z_mesh, cmap=colormap,
                         alpha=alpha,
                         cstride=10, rstride=10, linewidth=.2)
-
 
         if contours:
             offset_dist = .2  # How far from the graph to draw the contours, as a
@@ -330,7 +328,7 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
 
 def polar(f: Callable[[float], float], theta_min: float=0, theta_max: float=τ,
           title: str=None, color: str=None, resolution: int=1e5, show: bool=True) -> None:
-    """Make a polar plot. Function 1input is theta, in radians; output is radius.
+    """Make a polar plot. Function input is theta, in radians; output is radius.
     0 radians corresponds to a point on the x axis, with positive y, ie right side.
     Goes counter-clockwise from there."""
     # todo more customization for xticks (ie theta ticks) ie degrees, pi, 4/8/16 divisions etc
@@ -378,7 +376,7 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
     if stream:
         ax.streamplot(x, y, i, j, color=vec_len, cmap=COLORMAP_PRIORITY[0])
     else:
-        ax.quiver(x, y, i, j, vec_len, width=.003, cmap=COLORMAP_PRIORITY[0])
+        ax.quiver(x, y, i, j, vec_len, width=.003, minshaft=3, cmap=COLORMAP_PRIORITY[0])
 
     _set_misc(fig, ax, title, grid, equal_aspect)
     return _show_or_return(ax, show)
