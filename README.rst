@@ -114,6 +114,7 @@ Optional arguments:
  - resolution: Controls how many points to draw, based on function input. Higher resolution
    allows more zooming, but may lower performance.
  - color: (ie line color)
+ - linewidth: line width.
  - y_min and y_max: (only for 2d input)
  - theta_min and theta_max (only for polar plots)
  - style: (ie from plt.use.style())

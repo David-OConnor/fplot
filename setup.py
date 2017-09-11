@@ -4,8 +4,8 @@ with open('README.rst') as f:
     readme = f.read()
 
 setup(
-    name="Fplot",
-    version="0.1.1",
+    name="fplot",
+    version="0.2.0",
     packages=find_packages(),
 
     install_requires=['numpy',

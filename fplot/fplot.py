@@ -16,20 +16,6 @@ COLORMAP_PRIORITY = [cm.viridis, cm.inferno, cm.plasma, cm.magma]
 
 τ = 2 * np.pi
 
-# Todo broken atm.
-def show2(f):
-    @wraps(f)
-    def inner(*args, **kwargs):
-        if kwargs['show']:
-            plt.show()
-        else:
-            return f(*args, **kwargs)
-    return inner
-
-
-def from_sympy():
-    pass
-
 
 def _set_grid_axes(ax):
     ax.grid(True)
@@ -53,8 +39,6 @@ def _set_misc(fig, ax, title: str, grid: bool, equal_aspect: bool) -> None:
 
     plt.tight_layout(rect=(0, 0, 1, top_margin))
 
-    fig.patch.set_facecolor('ghostwhite')
-
 
 def _show_or_return(ax, show):
     if show:
@@ -63,14 +47,14 @@ def _show_or_return(ax, show):
         return ax
 
 
-def plot(f: Callable[[float], float], x_min: float, x_max: float,
+def plot(f: Callable[[float], float], x_min: float, x_max: float, linewidth: float=2.0,
          title: str=None, grid=True, show=True, equal_aspect=False,
-         color: str=None, resolution=1e5, style: str=DEFAULT_STYLE) -> None:
+         color: str=None, resolution=1e5, style: str=None) -> None:
     """One input, one output."""
 
-    # Style seems to require a reset, or some properties from previous styles stick.
-    plt.style.use('classic')
-    plt.style.use(style)  # style must be set before setting fix, ax.
+    if style:
+        plt.style.use(style)  # style must be set before setting fix, ax.
+
     fig, ax = plt.subplots()
 
     x = np.linspace(x_min, x_max, resolution)
@@ -79,7 +63,7 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float,
     if not hasattr(f, '__iter__'):
         f = [f]
     for func in f:
-        ax.plot(x, func(x), color=color)
+        ax.plot(x, func(x), color=color, linewidth=linewidth)
 
 
     # # If a vertical asympytote exists, set y display range to a reasonable value.
@@ -112,7 +96,7 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float,
 
 
 def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
-               t_max: float, title: str=None, grid=True, show=True,
+               t_max: float, linewidth: float=2.0, title: str=None, grid=True, show=True,
                color=None, equal_aspect=False, resolution=1e5, style: str=DEFAULT_STYLE)-> None:
     """One input, two outputs (2d plot), three outputs (3d plot)."""
 
@@ -156,16 +140,16 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
 
     for func in f:
         outputs = func(t)
-        ax.plot(*outputs, color=color)
+        ax.plot(*outputs, color=color, linewidth=linewidth)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
     return _show_or_return(ax, show)
 
 
 def parametric_surface(f: Callable[[float, float], Tuple[float, float, float]], t_min: float,
-               t_max: float, s_min: float=None, s_max: float=None, title: str=None,
-               grid=True, show=True, equal_aspect=False, alpha: float=1.0,
-               resolution=1e2, style: str=DEFAULT_STYLE)-> None:
+                       t_max: float, s_min: float=None, s_max: float=None, title: str=None,
+                       grid=True, show=True, equal_aspect=False, alpha: float=2.0,
+                       resolution=1e2, style: str=DEFAULT_STYLE)-> None:
     # todo currently not working.
     if not s_min:
         s_min = t_min
@@ -272,8 +256,7 @@ def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
         f = [f]
 
     for func in enumerate(f):
-        x_mesh, y, z = _two_in_one_out_helper(func, x_min, x_max, y_min, y_max,
-                                              resolution)
+        x_mesh, y, z = _two_in_one_out_helper(func, x_min, x_max, y_min, y_max, resolution)
         ax.contour(x_mesh, y, z, num_contours)
 
     _set_misc(fig, ax, title, grid, equal_aspect)
@@ -342,10 +325,10 @@ def polar(f: Callable[[float], float], theta_min: float=0, theta_max: float=τ,
     ax.set_xticks(np.linspace(0, 15*τ/16, 16))
 
     ax.set_xticklabels(['0', r'$\frac{\tau}{16}$', r'$\frac{\tau}{8}$', r'$\frac{3\tau}{16}$',
-          r'$\frac{\tau}{4}$', r'$\frac{5\tau}{16}$', r'$\frac{3\tau}{8}$', r'$\frac{7\tau}{16}$',
-          r'$\frac{\tau}{2}$', r'$\frac{9\tau}{16}$', r'$\frac{5\tau}{8}$', r'$\frac{11\tau}{16}$',
-          r'$\frac{3\tau}{4}$', r'$\frac{13\tau}{16}$', r'$\frac{7\tau}{8}$', r'$\frac{15\tau}{16}$'],
-          fontsize=20)
+                        r'$\frac{\tau}{4}$', r'$\frac{5\tau}{16}$', r'$\frac{3\tau}{8}$', r'$\frac{7\tau}{16}$',
+                        r'$\frac{\tau}{2}$', r'$\frac{9\tau}{16}$', r'$\frac{5\tau}{8}$', r'$\frac{11\tau}{16}$',
+                        r'$\frac{3\tau}{4}$', r'$\frac{13\tau}{16}$', r'$\frac{7\tau}{8}$', r'$\frac{15\tau}{16}$'],
+                       fontsize=20)
 
     # Default figure size is too small.
     fig.set_size_inches(8, 8, forward=True)
