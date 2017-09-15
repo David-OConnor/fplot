@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name="fplot",
-    version="0.2.0",
+    version="0.2.1",
     packages=find_packages(),
 
     install_requires=['numpy',
@@ -17,5 +17,5 @@ setup(
     description="Plot functions with simple syntax",
     long_description=readme,
     license="Apache 2.0",
-    keywords="plot, matplotlib, plotting, functions",
+    keywords="plot, matplotlib, plotting, functions, jupyter",
 )
