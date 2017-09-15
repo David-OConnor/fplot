@@ -1,5 +1,6 @@
 Fplot: Function plots with less code
 ====================================
+
 A thin wrapper for matplotlib
 
 Fplot's goal is to provide simple syntax for plotting functions, with sensible
@@ -29,7 +30,6 @@ Included functions
  ie syntax like plt.plot, which doesn't work properly in Jupyter.
 Arguments: (args, marker='b-', linewidth: float=2.0, grid: bool=False, color: str=None,
          title: str=None, equal_aspect: bool=False, style: str=None, show: bool=True)
-
 -imshow: Like plot2, but as a replacement for plt.imshow.
 
 
