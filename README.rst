@@ -23,8 +23,8 @@ Included functions
  - vector3d: Three inputs, three outputs.
  - polar: One input (angle), two outputs (radius)
 
- Bonus functions
- ---------------
+Bonus functions
+---------------
 
  -plot2: Smoothed API for matplotlib 2d plotting that works properly in Jupyter notebooks.
  ie syntax like plt.plot, which doesn't work properly in Jupyter.
