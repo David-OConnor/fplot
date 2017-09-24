@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name="fplot",
-    version="0.2.1",
+    version="0.2.2",
     packages=find_packages(),
 
     install_requires=['numpy',
