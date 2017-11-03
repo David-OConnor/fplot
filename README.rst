@@ -119,6 +119,28 @@ Show a 2d polar plot (1 input, 1 output)
     fplot.polar(f, 0, tau, color='purple')
 
 
+Example of an interactive plot with Ipython widgets in Jupyter notebook
+
+.. code-block:: python
+
+    from numpy import sin, cos
+    from ipywidgets import interactive
+    import fplot
+
+    def make_plot(a, b):
+        f = lambda t: (a*sin(t), a*cos(t), b*t)
+        ax = fplot.parametric(f, -20, 20, show=False)
+
+        ax.set_xlim3d(-3, 3)
+        ax.set_ylim3d(-3, 3)
+        ax.set_zlim3d(-3, 3)
+        plt.show()
+
+    interactive_plot = interactive(make_plot, a=(-2.0, 2.0), b=(-3.0, 3.0))
+    interactive_plot
+
+
+
 Optional arguments:
  - show: Defaults to True. Instantly display the plot. If False, return the axis object.
  - resolution: Controls how many points to draw, based on function input. Higher resolution
