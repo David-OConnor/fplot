@@ -21,16 +21,14 @@ Included functions
  - surface: Two inputs, one output.
  - vector: Two inputs, two outputs.
  - vector3d: Three inputs, three outputs.
- - polar: One input (angle), two outputs (radius)
+ - polar: One input (angle), one output (radius)
 
 Bonus functions
 ---------------
 
- -plot2: Smoothed API for matplotlib 2d plotting that works properly in Jupyter notebooks.
- ie syntax like plt.plot, which doesn't work properly in Jupyter.
-Arguments: (args, marker='b-', linewidth: float=2.0, grid: bool=False, color: str=None,
-         title: str=None, equal_aspect: bool=False, style: str=None, show: bool=True)
--imshow: Like plot2, but as a replacement for plt.imshow.
+ - plot2: Smoothed API for matplotlib 2d plotting that works properly in Jupyter notebooks. ie syntax like plt.plot, which doesn't work properly in Jupyter. Arguments: (args, marker='b-', linewidth: float=2.0, grid: bool=False, color: str=None, title: str=None, equal_aspect: bool=False, style: str=None, show: bool=True)
+ - imshow: Like plot2, but as a replacement for plt.imshow.
+
 
 
 Installation

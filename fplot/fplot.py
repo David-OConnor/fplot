@@ -7,7 +7,6 @@ from matplotlib import cm, pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-
 DEFAULT_STYLE = 'seaborn-deep'
 # Iterate over these colormaps, for distinguising different curface and contour plots.
 COLORMAP_PRIORITY = [cm.viridis, cm.inferno, cm.plasma, cm.magma]
@@ -49,7 +48,7 @@ def _show_or_return(ax, show):
 
 def plot(f: Callable[[float], float], x_min: float, x_max: float, linewidth: float=2.0,
          title: str=None, grid=True, show=True, equal_aspect=False,
-         color: str=None, resolution=1e5, style: str=None) -> None:
+         color: str=None, resolution: int=int(1e5), style: str=None) -> None:
     """One input, one output."""
 
     if style:
@@ -97,7 +96,7 @@ def plot(f: Callable[[float], float], x_min: float, x_max: float, linewidth: flo
 
 def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
                t_max: float, linewidth: float=2.0, title: str=None, grid=True, show=True,
-               color=None, equal_aspect=False, resolution=1e5, style: str=DEFAULT_STYLE)-> None:
+               color=None, equal_aspect=False, resolution: int=int(1e5), style: str=DEFAULT_STYLE)-> None:
     """One input, two outputs (2d plot), three outputs (3d plot)."""
 
     t = np.linspace(t_min, t_max, resolution)
@@ -146,82 +145,82 @@ def parametric(f: Callable[[float], Tuple[float, float]], t_min: float,
     return _show_or_return(ax, show)
 
 
-def parametric_surface(f: Callable[[float, float], Tuple[float, float, float]], t_min: float,
-                       t_max: float, s_min: float=None, s_max: float=None, title: str=None,
-                       grid=True, show=True, equal_aspect=False, alpha: float=2.0,
-                       resolution=1e2, style: str=DEFAULT_STYLE)-> None:
-    # todo currently not working.
-    if not s_min:
-        s_min = t_min
-    if not s_max:
-        s_max = t_max
-
-    tau = 2*np.pi
-    x_min, x_max = -tau, tau
-    y_min, y_max = -tau, tau
-    z_min, z_max = -10, 10
-
-    x = np.linspace(x_min, x_max, resolution)
-    y = np.linspace(y_min, y_max, resolution)
-    # z = np.linspace(z_min, z_max, resolution)
-    x_mesh, y_mesh = np.meshgrid(x, y)
-    r = np.sqrt(x_mesh, y_mesh)
-
-    t = np.linspace(t_min, t_max, resolution)
-    s = np.linspace(s_min, s_max, resolution)
-
-    x, y, z = f(t, s)
-
-
-    # ###
-    # du = np.sqrt(np.diff(x, axis=0) ** 2 + np.diff(y, axis=0) ** 2 + np.diff(z,
-    #                                                                          axis=0) ** 2)
-    # dv = np.sqrt(np.diff(x, axis=1) ** 2 + np.diff(y, axis=1) ** 2 + np.diff(z,
-    #                                                                          axis=1) ** 2)
-    # u = np.zeros_like(x)
-    # v = np.zeros_like(x)
-    # u[1:, :] = np.cumsum(du, axis=0)
-    # v[:, 1:] = np.cumsum(dv, axis=1)
-    #
-    # u /= u.max(axis=0)[None,
-    #      :]  # hmm..., or maybe skip this scaling step -- may distort the result
-    # v /= v.max(axis=1)[:, None]
-    #
-    # # construct interpolant (unstructured grid)
-    # from scipy import interpolate
-    # ip_surf = interpolate.CloughTocher2DInterpolator(
-    #     (u.ravel(), v.ravel()),
-    #     np.c_[x.ravel(), y.ravel(), z.ravel()])
-
-    # the BivariateSpline classes might also work here, but the above is more robust
-
-    # plot projections
-    #
-    # u = np.random.rand(2000)
-    # v = np.random.rand(2000)
-    #
-    # plt.subplot(131)
-    # plt.plot(ip_surf(u, v)[:, 0], ip_surf(u, v)[:, 1], '.')
-    # plt.subplot(132)
-    # plt.plot(ip_surf(u, v)[:, 1], ip_surf(u, v)[:, 2], '.')
-    # plt.subplot(133)
-    # plt.plot(ip_surf(u, v)[:, 2], ip_surf(u, v)[:, 0], '.')
-    #
-    # plt.show()
-    # return
-
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    ax.plot(x, y, z)
-
-    ax.plot_surface(x, y, z, cmap=DEFAULT_COLORMAP, alpha=alpha)
-
-    # ax.set_xlabel('x-axis')
-    # ax.set_ylabel('y-axis')
-    # ax.set_zlabel('z-axis')
-
-    _set_misc(fig, ax, title, grid, equal_aspect)
-    return _show_or_return(ax, show)
+# def parametric_surface(f: Callable[[float, float], Tuple[float, float, float]], t_min: float,
+#                        t_max: float, s_min: float=None, s_max: float=None, title: str=None,
+#                        grid=True, show=True, equal_aspect=False, alpha: float=2.0,
+#                        resolution: int=int(1e2), style: str=DEFAULT_STYLE)-> None:
+#     # todo currently not working.
+#     if not s_min:
+#         s_min = t_min
+#     if not s_max:
+#         s_max = t_max
+#
+#     tau = 2*np.pi
+#     x_min, x_max = -tau, tau
+#     y_min, y_max = -tau, tau
+#     z_min, z_max = -10, 10
+#
+#     x = np.linspace(x_min, x_max, resolution)
+#     y = np.linspace(y_min, y_max, resolution)
+#     # z = np.linspace(z_min, z_max, resolution)
+#     x_mesh, y_mesh = np.meshgrid(x, y)
+#     r = np.sqrt(x_mesh, y_mesh)
+#
+#     t = np.linspace(t_min, t_max, resolution)
+#     s = np.linspace(s_min, s_max, resolution)
+#
+#     x, y, z = f(t, s)
+#
+#
+#     # ###
+#     # du = np.sqrt(np.diff(x, axis=0) ** 2 + np.diff(y, axis=0) ** 2 + np.diff(z,
+#     #                                                                          axis=0) ** 2)
+#     # dv = np.sqrt(np.diff(x, axis=1) ** 2 + np.diff(y, axis=1) ** 2 + np.diff(z,
+#     #                                                                          axis=1) ** 2)
+#     # u = np.zeros_like(x)
+#     # v = np.zeros_like(x)
+#     # u[1:, :] = np.cumsum(du, axis=0)
+#     # v[:, 1:] = np.cumsum(dv, axis=1)
+#     #
+#     # u /= u.max(axis=0)[None,
+#     #      :]  # hmm..., or maybe skip this scaling step -- may distort the result
+#     # v /= v.max(axis=1)[:, None]
+#     #
+#     # # construct interpolant (unstructured grid)
+#     # from scipy import interpolate
+#     # ip_surf = interpolate.CloughTocher2DInterpolator(
+#     #     (u.ravel(), v.ravel()),
+#     #     np.c_[x.ravel(), y.ravel(), z.ravel()])
+#
+#     # the BivariateSpline classes might also work here, but the above is more robust
+#
+#     # plot projections
+#     #
+#     # u = np.random.rand(2000)
+#     # v = np.random.rand(2000)
+#     #
+#     # plt.subplot(131)
+#     # plt.plot(ip_surf(u, v)[:, 0], ip_surf(u, v)[:, 1], '.')
+#     # plt.subplot(132)
+#     # plt.plot(ip_surf(u, v)[:, 1], ip_surf(u, v)[:, 2], '.')
+#     # plt.subplot(133)
+#     # plt.plot(ip_surf(u, v)[:, 2], ip_surf(u, v)[:, 0], '.')
+#     #
+#     # plt.show()
+#     # return
+#
+#     fig = plt.figure()
+#     ax = fig.gca(projection='3d')
+#     ax.plot(x, y, z)
+#
+#     ax.plot_surface(x, y, z, cmap=DEFAULT_COLORMAP, alpha=alpha)
+#
+#     # ax.set_xlabel('x-axis')
+#     # ax.set_ylabel('y-axis')
+#     # ax.set_zlabel('z-axis')
+#
+#     _set_misc(fig, ax, title, grid, equal_aspect)
+#     return _show_or_return(ax, show)
 
 
 def _two_in_one_out_helper(f: Callable[[float, float], float], x_min: float,
@@ -237,7 +236,7 @@ def _two_in_one_out_helper(f: Callable[[float, float], float], x_min: float,
 
 
 def contour(f: Callable[[float, float], float], x_min: float, x_max: float,
-            y_min: float=None, y_max: float=None, resolution=1e3,
+            y_min: float=None, y_max: float=None, resolution: int=int(1e3),
             title: str=None, grid=True, show=True, equal_aspect=False,
             style: str=DEFAULT_STYLE, num_contours=10) -> None:
     """Two inputs, one output."""
@@ -310,7 +309,7 @@ def surface(f: Callable[[float, float], float], x_min: float, x_max: float,
 
 
 def polar(f: Callable[[float], float], theta_min: float=0, theta_max: float=τ,
-          title: str=None, color: str=None, resolution: int=1e5, show: bool=True) -> None:
+          title: str=None, color: str=None, resolution: int=int(1e5), show: bool=True) -> None:
     """Make a polar plot. Function input is theta, in radians; output is radius.
     0 radians corresponds to a point on the x axis, with positive y, ie right side.
     Goes counter-clockwise from there."""
@@ -333,7 +332,7 @@ def polar(f: Callable[[float], float], theta_min: float=0, theta_max: float=τ,
     # Default figure size is too small.
     fig.set_size_inches(8, 8, forward=True)
 
-    _set_misc(fig, ax, title, False, None)
+    _set_misc(fig, ax, title, False, False)
     return _show_or_return(ax, show)
 
 
@@ -341,8 +340,10 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
            x_max: float, y_min: float=None, y_max: float=None, grid=True,
            title: str=None, show=True, equal_aspect=False, stream=False,
            resolution: int=17, style: str=DEFAULT_STYLE) -> None:
-    """Two inputs, two outputs. 2D vector plot. stream=True sets a streamplot
-    with curved arrows instead of a traditionl vector plot."""
+    """
+    Two inputs, two outputs. 2D vector plot. stream=True sets a streamplot
+    with curved arrows instead of a traditionl vector plot.
+    """
     if not y_min:
         y_min = x_min
     if not y_max:
@@ -363,6 +364,32 @@ def vector(f: Callable[[float, float], Tuple[float, float]], x_min: float,
 
     _set_misc(fig, ax, title, grid, equal_aspect)
     return _show_or_return(ax, show)
+
+
+def color(f: Callable[[float, float], Tuple[float, float]], x_min: float,
+          x_max: float, y_min: float=None, y_max: float=None, n_colors: int=4,
+          resolution: int=int):
+    """
+    WIP. Two inputs, two outputs. From 3Blue1Brown's video 'How to solve 2D equations
+    using color.': https://www.youtube.com/watch?v=b7FxPsqfkOY
+    May be slow, since makes function calls at many points along a grid.
+    """
+    if not y_min:
+        y_min = x_min
+    if not y_max:
+        y_max = x_max
+
+    x_range = np.linspace(x_min, x_max, resolution)
+    y_range = np.linspace(y_min, y_max, resolution)
+
+    for x, y in itertools.product(x_range, y_range):
+        pass
+
+    def find_color(
+        f: Callable[[float, float], Tuple[float, float]],
+        point: Tuple[float, float]
+    ) -> Tuple[int, int, int]:
+        pass
 
 
 def vector3d(f: Callable[[float, float, float], Tuple[float, float, float]],
@@ -401,3 +428,52 @@ def vector3d(f: Callable[[float, float, float], Tuple[float, float, float]],
     _set_misc(fig, ax, title, False, equal_aspect)
     return _show_or_return(ax, show)
 
+
+def phase_portrait(A: np.ndarray, t_min: float, t_max: float, num_lines: int=10,
+                   linewidth: float=2.0, title: str=None, grid=True, show=True,
+                   color=None, equal_aspect=False, resolution: int=int(1e3),
+                   style: str=DEFAULT_STYLE)-> None:
+    """Plot the (real) phase-plane space of a 2x2 system of differential equations, represented
+    by a matrix."""
+    if A.shape != (2, 2):
+        raise AttributeError("A must be a 2x2 array.")
+
+    if style:
+        plt.style.use(style)  # style must be set before setting fix, ax.
+
+    fig, ax = plt.subplots()
+
+    t = np.linspace(t_min, t_max, resolution)
+
+    eigvals, eigvects = np.linalg.eig(A)
+
+    def f(t_, c1, c2):
+        x = c1 * eigvects[0][0] * np.e**(eigvals[0] * t_) + c2 * eigvects[1][0] * np.e**(eigvals[1] * t_)
+        y = c1 * eigvects[0][1] * np.e**(eigvals[0] * t_) + c2 * eigvects[1][1] * np.e**(eigvals[1] * t_)
+
+    def make_equation_plane(x, y):
+        """SOlve for constant c_1 and c_2, from x and y."""
+        # Solve for t=0
+        c_2 = -eigvects[0][1] * x / (eigvects[0][0] * eigvects[1][1] - eigvects[0][1] * eigvects[1][0])
+        c_1 = (x - c_2 * eigvects[1][0]) / eigvects[0][0]
+
+        x_out = lambda t_: c_1 * eigvects[0][0] * np.e **(eigvals[0]*t_) + c_2 * eigvects[1][0] * np.e**(eigvals[1]*t_)
+        y_out = lambda t_: c_1 * eigvects[0][1] * np.e ** (eigvals[0] * t_) + c_2 * eigvects[1][1] * np.e ** (eigvals[1] * t_)
+        return x_out, y_out
+
+    return vector(make_equation_plane, -10, 10, stream=True, grid=True, title=title, show=show,
+                  equal_aspect=equal_aspect, resolution=resolution, style=style)
+
+    # # Plot multiple lines, equally-distributed in polar space.
+    # for θ in np.linspace(0, 2*np.pi, num_lines):
+    #     # Solve for t = 0 as an initial condition.
+    #     B = np.stack(eigvects, axis=1)
+    #     c_1, c_2 = np.linalg.solve(B, np.array([np.cos(θ), np.sin(θ)]))
+    #
+    #     ax.plot(*f(t, c_1, c_2), color=color, linewidth=linewidth)
+
+    if equal_aspect:
+        ax.set_aspect('equal')
+
+    _set_misc(fig, ax, title, grid, equal_aspect)
+    return _show_or_return(ax, show)
